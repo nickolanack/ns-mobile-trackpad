@@ -11,14 +11,22 @@ JavaScript modules defined in other files.
 */ 
 var createViewModel = require("./main-view-model").createViewModel;
 var gestures = require("ui/gestures");
-
+var Observable = require("data/observable").Observable;
 
 require('nativescript-websockets');
 
-var mySocket = new WebSocket("ws://echo.websocket.org", [ /* "protocol","another protocol" */]);
+var mySocket = new WebSocket("ws://192.168.1.68:8080", [ /* "protocol","another protocol" */]);
 mySocket.on('open', function (evt) { console.log("We are Open"); evt.target.send("Hello"); });
 mySocket.on('message', function(evt) { console.log("We got a message: ", evt.data); });
-mySocket.on('close', function(evt) { console.log("The Socket was Closed:", evt.code, evt.reason); });
+mySocket.on('close', function(evt) { 
+
+
+    console.log("The Socket was Closed:", evt.code, evt.reason); 
+
+
+
+
+});
 mySocket.on('error', function(evt) { console.log("The socket had an error", evt.error); });
 
 function onNavigatingTo(args) {
@@ -29,39 +37,78 @@ function onNavigatingTo(args) {
     */
     var page = args.object;
 
+
+    var mult=2.0;
+    var state='up';
     
 
-    /*
-    A page’s bindingContext is an object that should be used to perform
-    data binding between XML markup and JavaScript code. Properties
-    on the bindingContext can be accessed using the {{ }} syntax in XML.
-    In this example, the {{ message }} and {{ onTap }} bindings are resolved
-    against the object returned by createViewModel().
+    
+    page.bindingContext =  new Observable({
+        actionBarTitle:"192.168.1.68 Port:8080"
+    });
 
-    You can learn more about data binding in NativeScript at
-    https://docs.nativescript.org/core-concepts/data-binding.
-    */
-    page.bindingContext = createViewModel();
+
     page.on(gestures.GestureTypes.tap, function(args){
-        mySocket.send("Tap");
+        if(state==='up'){
+            mySocket.send(JSON.stringify({
+                    event:"click"
+                }));
+        }
     });
-    page.on(gestures.GestureTypes.doubleTap, function (args) {
-          mySocket.send("Double Tap");
-    });
-    page.on(gestures.GestureTypes.longPress, function (args) {
-         mySocket.send("Long Press");
-    });
-    page.on(gestures.GestureTypes.swipe, function (args) {
-         mySocket.send("Swipe Direction: " + args.direction);
-    });
+    // page.on(gestures.GestureTypes.doubleTap, function (args) {
+    //      mySocket.send(JSON.stringify({
+    //             event:"doubletap"
+    //         }));
+    // });
+    // page.on(gestures.GestureTypes.longPress, function (args) {
+    //      mySocket.send("Long Press");
+    // });
+    // page.on(gestures.GestureTypes.swipe, function (args) {
+         
+    //      mySocket.send(JSON.stringify({
+    //         event:"swipe",
+    //         d:args.direction,
+    //      }));
+
+    //      console.log("Swipe Direction: " + args.direction);
+
+    // });
     page.on(gestures.GestureTypes.pan, function (args) {
-         mySocket.send("Pan deltaX:" + args.deltaX + "; deltaY:" + args.deltaY + ";");
+
+        if(state==='down'){
+
+
+
+             mySocket.send(JSON.stringify({
+                event:"move",
+                dx:args.deltaX*mult,
+                dy:args.deltaY*mult
+            }));
+        }
+
+            //console.dump(args);
     });
-    page.on(gestures.GestureTypes.pinch, function (args) {
-         mySocket.send("Pinch Scale: " + args.scale);
-    });
-    page.on(gestures.GestureTypes.rotation, function (args) {
-         mySocket.send("Rotation: " + args.rotation);
+    // page.on(gestures.GestureTypes.pinch, function (args) {
+    //      mySocket.send("Pinch Scale: " + args.scale);
+    // });
+    // page.on(gestures.GestureTypes.rotation, function (args) {
+    //      mySocket.send("Rotation: " + args.rotation);
+    // });
+
+    page.on(gestures.GestureTypes.touch, function (args) {
+
+        if(args.action==='up'||args.action==='down'){
+
+            state=args.action;
+            
+            mySocket.send(JSON.stringify({
+                event:"touch"+args.action
+            }));
+
+        }
+
+        //console.log("Touch:  "+args.action);
+        //console.log("Touch:  "+JSON.stringify(Object.keys(args)));
     });
 
 }
