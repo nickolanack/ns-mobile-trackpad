@@ -13,5 +13,17 @@ https://docs.nativescript.org/ui/components.
         <ActionBar id="actionBar" title="{{actionBarTitle}}" icon="" class="action-bar">
         </ActionBar>
     </Page.actionBar>
+    <WrapLayout>
+    	
+        <Repeater items="{{ keyboardButtons }}">
+        	<Repeater.itemsLayout>
+		       <WrapLayout />
+		    </Repeater.itemsLayout>
+		    <Repeater.itemTemplate>
+		       <Button text="{{text}}" tap="buttonTap"/>
+		    </Repeater.itemTemplate>
+		 </Repeater>
+
+    </WrapLayout>
    
 </Page>
