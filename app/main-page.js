@@ -44,7 +44,7 @@ var keyLabels = {
     "audio_mute": "mute",
     "audio_vol_down": "-",
     "audio_vol_up": "+",
-    "audio_play": "plan",
+    "audio_play": "play",
     "audio_prev": "prev",
     "audio_next": "next"
 
